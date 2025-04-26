@@ -74,14 +74,15 @@ app.layout = html.Div([
                   'fontWeight': 'bold',
                   'marginTop': '20px'
     }),
-    html.H4(f"Today’s Date: {today}"), #display current daet on dash
+    html.H4(f"Current Date: {today}"), #display current daet on dash
     dcc.Dropdown(
     options=[{'label': currency_names.get(col, col), 'value': col} for col in df.columns if col != 'Week_start'],
     value='EUR',
     id='currency-dropdown'
     ),
     dcc.Graph(id='line-chart'),
-    html.Label("USD Amount:"),
+    html.Label("USD Amount:",
+                style={'fontWeight': 'bold'}),
     dcc.Input(id='usd-input', type='number', value=1),
     html.Div(id='converted-value')
 ])
@@ -93,7 +94,8 @@ app.layout = html.Div([
     Input('usd-input', 'value')
 )
 def update_chart(currency, amount):
-    fig = px.line(df, x='Week_start', y=currency, title=f"{currency} per 1 USD")
+    full_currency_name = currency_names.get(currency, currency)  # get full name
+    fig = px.line(df, x='Week_start', y=currency, title=f"{currency} per 1 {base}", labels= {'Week_start': 'Week Start (Mondays)', currency : full_currency_name})
     latest_rate = df.iloc[-1,:][currency]
     converted = amount * latest_rate
     return fig, f"{amount:,.2f} USD = {converted:,.2f} {currency} (latest)"
